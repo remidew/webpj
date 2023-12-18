@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>list</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title{ /*제목 스타일*/
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .praise { /*버튼 스타일*/
+            width: 120px;
+            height: 50px;
+            background-color: aliceblue;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 10%;
+            box-shadow: 2px 2px 2px gray;
+            border: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .praise:hover { /*버튼 hover시*/
+            background-color: rgb(207, 213, 218);
+        }
+
+        ul { /*리스트 가운데 정렬*/
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        li{ /*리스트 스타일 설정*/
+            list-style: none;
+            margin: 10px;
+        }
+
+        hr { /*줄 너비 설정*/
+            width: 10%;
+        }
+
+        .img { /*이미지 너비 설정*/
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">About glasses...</h1><hr>
+    <canvas id="canvas"></canvas>
+    <ul>
+        <li><button class="praise" onclick="changeImg('Round')">Round</button></li>
+        <li><button class="praise" onclick="changeImg('Oval')">Oval</button></li>
+        <li><button class="praise" onclick="changeImg('Square')">Square</button></li>
+        <li><button class="praise" onclick="changeImg('Aviator')">Aviator</button></li>
+        <li><button class="praise" onclick="changeImg('Butterfly')">Butterfly</button></li>
+    </ul>
+
+    <img class="img" src="Round.jpg" alt=""><!--버튼 클릭시 이미지 출력-->
+
+    <script>
+        function changeImg(name) { // 버튼 클릭시 이미지 변경하는 함수
+            document.querySelector('.img').src = `${name}.jpg`; // 이미지 변경
+        }
+    </script>
+
+    <!-- Three js 라이브러리 임포트 -->
+    <script type="importmap">
+        {
+            "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js'; // OrbitControls(카메라 조정 가능)
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'; // GLTFLoader(gitf 3차원 파일 사용 가능)
+        import * as THREE from 'three'; // three 라이브러리(웹페이지에 3D객체 랜더링할 수 있게 함)
+
+        let [width, height] = [window.innerWidth,300]; // 창의 가로, 세로 설정
+        let aspectRatio = width / height; // 가로 세로 비율
+        let canvas = document.querySelector('#canvas'); // canvas 선택
+        Object.assign(canvas, { width, height }); // canvas 가로 세로
+
+        let scene = new THREE.Scene(); // 새 장면 생성
+        scene.background = new THREE.Color('#ffffff'); // 장면 배경색
+
+        let light = new THREE.AmbientLight(0xffffff, 1); // 새 빛을 생성(안경의 반짝이는 부분)
+        scene.add(light); // 빛 추가
+
+        let renderer = new THREE.WebGLRenderer({ // WebGL 렌더러(3D 그래픽 표현)
+            canvas,
+            antialias: true
+        });
+
+        let camera = new THREE.PerspectiveCamera(90, aspectRatio, 1, 1000); // 카메라 생성
+        camera.position.set(0, 0, 100); // 카메라 위치
+        
+        let controls = new OrbitControls(camera, renderer.domElement); // 카메라 컨트롤 생성
+        controls.target.set(0, 0, 0); // 컨트롤할 타겟
+        controls.autoRotate = true; // 자동 회전
+        controls.autoRotateSpeed = 20; // 자동 회전 속도
+    
+        let loader = new GLTFLoader(); // GLTF 로더 생성
+        
+        loader.load('./glasses_4/scene.gltf', function(gltf){ // GLTF 파일 불러오기
+            scene.add(gltf.scene); // 장면에 GLTF 추가
+            gltf.scene.scale.set(5,5,5); // GLTF 크기 설정
+            gltf.scene.position.set(-50,0,0); // GLTF 위치 설정
+            gltf.scene.rotation.set(0,0,0); // GLTF 회전 설정
+        });
+
+        loader.load('./glasses_2/scene.gltf', function(gltf){ // GLTF 파일 불러오기
+            scene.add(gltf.scene); // 장면에 GLTF 추가
+            gltf.scene.scale.set(40,40,40); // GLTF 크기 설정
+            gltf.scene.position.set(50,0,10); // GLTF 위치 설정
+            gltf.scene.rotation.set(0,0,0); // GLTF 회전 설정
+        });
+
+        (function animate() { // 애니메이션 함수
+            renderer.render(scene, camera); // 장면, 카메라 렌더링
+            controls.update(); // 컨트롤 업데이트
+            requestAnimationFrame(animate); // 다음 프레임 요청
+        })();
+    </script>
+</body>
+</html>
